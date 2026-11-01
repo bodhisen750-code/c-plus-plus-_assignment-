@@ -1,5 +1,4 @@
-
- Smart Farm Management System
+//Smart Farm Management System
 #include <iostream>
 #include <fstream>
 #include <iomanip>
