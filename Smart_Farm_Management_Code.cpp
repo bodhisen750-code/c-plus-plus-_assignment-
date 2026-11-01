@@ -1,4 +1,4 @@
-//Smart Farm Management System
+// Smart Farm Management System
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -6,34 +6,27 @@
 #include <vector>
 #include <stdexcept>
 using namespace std;
-
-Abstract class with a pure virtual function
 class Advisory {
 public:
     virtual void giveAdvice() = 0;
     virtual ~Advisory() {}
 };
-
- Base class
 class Crop : public Advisory {
 protected:
     string name;
-    double area;           in acres
+    double area;          
     string season;
-    double yieldPerAcre;  quintals per acre
-    static int count;      static member: counts crops
-
+    double yieldPerAcre;  
+    static int count;     
 public:
-     Constructor overloading
-    Crop() {
+   Crop() {
         name = "Unknown";
         area = 0;
         season = "Unknown";
         yieldPerAcre = 0;
         count++;
     }
-
-    Crop(string n, double a) {
+Crop(string n, double a) {
         if (a <= 0)
             throw invalid_argument("Area must be greater than 0");
         name = n;
@@ -54,17 +47,13 @@ public:
         yieldPerAcre = y;
         count++;
     }
-
-     Virtual destructor
-    virtual ~Crop() {
+virtual ~Crop() {
         count--;
     }
 
     string getName() { return name; }
     static int getCount() { return count; }
-
-     Virtual functions (runtime polymorphism)
-    virtual double totalYield() {
+virtual double totalYield() {
         return area * yieldPerAcre;
     }
 
@@ -82,9 +71,7 @@ public:
     virtual void saveToFile(ofstream &fout) {
         fout << name << " " << area << " " << season << " " << yieldPerAcre << " ";
     }
-
-     Operator overloading: compare two crops based on yield
-    bool operator>(Crop &c) {
+bool operator>(Crop &c) {
         return yieldPerAcre > c.yieldPerAcre;
     }
     bool operator<(Crop &c) {
@@ -95,66 +82,51 @@ public:
     }
 };
 
-int Crop::count = 0;   // initialising static member
-
- Derived class 1
+int Crop::count = 0;   
 class CerealCrop : public Crop {
     string fertilizerType;
 public:
     CerealCrop() : Crop() {
         fertilizerType = "None";
     }
-
-    CerealCrop(string n, double a, string s, double y, string f) : Crop(n, a, s, y) {
+ CerealCrop(string n, double a, string s, double y, string f) : Crop(n, a, s, y) {
         fertilizerType = f;
     }
-
-    string getType() { return "Cereal"; }
-
-    void display() {
+ string getType() { return "Cereal"; }
+void display() {
         Crop::display();
         cout << "Fertilizer: " << fertilizerType << endl;
     }
-
-    void saveToFile(ofstream &fout) {
+ void saveToFile(ofstream &fout) {
         fout << "Cereal ";
         Crop::saveToFile(fout);
         fout << fertilizerType << endl;
     }
-
-    void giveAdvice() {
+  void giveAdvice() {
         cout << name << ": Use " << fertilizerType
              << " fertilizer, remove weeds regularly and harvest when grains are hard." << endl;
     }
 };
-
- Derived class 2
 class VegetableCrop : public Crop {
-    int irrigationFreq;   // irrigate every N days
+    int irrigationFreq;   
 public:
     VegetableCrop() : Crop() {
         irrigationFreq = 1;
     }
-
-    VegetableCrop(string n, double a, string s, double y, int i) : Crop(n, a, s, y) {
+ VegetableCrop(string n, double a, string s, double y, int i) : Crop(n, a, s, y) {
         if (i <= 0)
             throw invalid_argument("Irrigation frequency must be positive");
         irrigationFreq = i;
     }
-
-    string getType() { return "Vegetable"; }
-
-     vegetables lose 10% after harvest, so formula is different
-    double totalYield() {
+  string getType() { return "Vegetable"; }
+double totalYield() {
         return area * yieldPerAcre * 0.9;
     }
-
-    void display() {
+void display() {
         Crop::display();
         cout << "Irrigation: every " << irrigationFreq << " days" << endl;
     }
-
-    void saveToFile(ofstream &fout) {
+ void saveToFile(ofstream &fout) {
         fout << "Vegetable ";
         Crop::saveToFile(fout);
         fout << irrigationFreq << endl;
@@ -165,8 +137,6 @@ public:
              << " days, use mulching and check for pests." << endl;
     }
 };
-
-Function to read a number safely
 double readNumber(string msg) {
     double x;
     cout << msg;
@@ -178,28 +148,24 @@ double readNumber(string msg) {
     }
     return x;
 }
-
 void addCrop(vector<Crop*> &crops) {
     int type;
     string name, season;
     double area, yield;
-
-    cout << "1. Cereal crop\n2. Vegetable crop\nEnter type: ";
+cout << "1. Cereal crop\n2. Vegetable crop\nEnter type: ";
     cin >> type;
     if (cin.fail() || (type != 1 && type != 2)) {
         cin.clear();
         cin.ignore(1000, '\n');
         throw invalid_argument("Type must be 1 or 2");
     }
-
-    cout << "Enter name: ";
+cout << "Enter name: ";
     cin >> name;
     area = readNumber("Enter area (acres): ");
     cout << "Enter season: ";
     cin >> season;
     yield = readNumber("Enter yield per acre (quintals): ");
-
-    if (type == 1) {
+if (type == 1) {
         string fert;
         cout << "Enter fertilizer type: ";
         cin >> fert;
@@ -210,7 +176,6 @@ void addCrop(vector<Crop*> &crops) {
     }
     cout << "Crop added successfully!" << endl;
 }
-
 void displayAll(vector<Crop*> &crops) {
     if (crops.empty()) {
         cout << "No crops recorded yet." << endl;
@@ -229,14 +194,13 @@ void showTotalYield(vector<Crop*> &crops) {
     double sum = 0;
     cout << fixed << setprecision(2);
     for (int i = 0; i < crops.size(); i++) {
-        double y = crops[i]->totalYield();    calls correct version at runtime
+        double y = crops[i]->totalYield();   
         cout << crops[i]->getName() << " (" << crops[i]->getType() << "): "
              << y << " quintals" << endl;
         sum += y;
     }
     cout << "Total farm yield: " << sum << " quintals" << endl;
 }
-
 void compareCrops(vector<Crop*> &crops) {
     if (crops.size() < 2)
         throw runtime_error("Need at least 2 crops to compare");
@@ -272,13 +236,10 @@ void loadData(vector<Crop*> &crops) {
     ifstream fin("crops.txt");
     if (!fin)
         throw runtime_error("File not found. Save some data first");
-
-    delete old data before loading
-    for (int i = 0; i < crops.size(); i++)
+ for (int i = 0; i < crops.size(); i++)
         delete crops[i];
     crops.clear();
-
-    string type, name, season, extra;
+ string type, name, season, extra;
     double area, yield;
     while (fin >> type >> name >> area >> season >> yield >> extra) {
         try {
@@ -339,9 +300,7 @@ int main() {
             cout << "Error: " << e.what() << endl;
         }
     } while (choice != 0);
-
-    // free memory (virtual destructor gets called)
-    for (int i = 0; i < crops.size(); i++)
+for (int i = 0; i < crops.size(); i++)
         delete crops[i];
 
     return 0;
